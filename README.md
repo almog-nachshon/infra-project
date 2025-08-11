@@ -70,7 +70,7 @@ kubectl get pods -A
 
 ## Files & Structure
 ```text
-eks-blueprints-tf/
+infra-project/
 ├─ bootstrap/
 │  └─ state/
 │     ├─ main.tf
@@ -101,5 +101,6 @@ eks-blueprints-tf/
 
 ## Destroy
 ```bash
+`cd environments/prod`  or `cd environments/test`  or `cd environments/dev`
 terraform destroy -var-file=terraform.tfvars
 ```
