@@ -7,9 +7,11 @@ data "aws_availability_zones" "available" {
 
 locals {
   # Pick up to 3 AZs (if region has less, it will use available)
-  azs = length(data.aws_availability_zones.available.names) >= 3 ?
-    slice(data.aws_availability_zones.available.names, 0, 3) :
-    data.aws_availability_zones.available.names
+  azs = (
+    length(data.aws_availability_zones.available.names) >= 3 ?
+      slice(data.aws_availability_zones.available.names, 0, 3) :
+      data.aws_availability_zones.available.names
+  )
 
   # Derive public/private subnets from VPC CIDR (one per AZ)
   public_subnets  = [for i, _ in local.azs : cidrsubnet(var.vpc_cidr, 8, i)]
@@ -49,9 +51,6 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = ">= 21.0.0"
 
-  cluster_name                   = var.name
-  cluster_version                = var.kubernetes_version
-  cluster_endpoint_public_access = true
   enable_irsa                    = true
 
   vpc_id     = module.vpc.vpc_id

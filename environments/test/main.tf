@@ -1,9 +1,11 @@
 data "aws_availability_zones" "available" { state = "available" }
 
 locals {
-  azs = length(data.aws_availability_zones.available.names) >= 3 ?
-    slice(data.aws_availability_zones.available.names, 0, 3) :
-    data.aws_availability_zones.available.names
+  azs = (
+    length(data.aws_availability_zones.available.names) >= 3 ?
+      slice(data.aws_availability_zones.available.names, 0, 3) :
+      data.aws_availability_zones.available.names
+  )
 
   public_subnets  = [for i, _ in local.azs : cidrsubnet(var.vpc_cidr, 8, i)]
   private_subnets = [for i, _ in local.azs : cidrsubnet(var.vpc_cidr, 8, i + 10)]
@@ -27,9 +29,6 @@ module "vpc" {
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = ">= 21.0.0"
-  cluster_name                   = var.name
-  cluster_version                = var.kubernetes_version
-  cluster_endpoint_public_access = true
   enable_irsa                    = true
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
